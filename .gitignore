@@ -1,0 +1,6 @@
+tools/
+out/
+scripts/*.pyc
+node_modules/
+yarn.lock
+.ninja_log

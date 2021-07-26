@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "env": "scripts/set_env_tools.bat",
+    "s1": "scripts/pre-build.bat",
+    "install": "ninja admin_install",
+    "clean": "ninja -t clean"
+  }
+}

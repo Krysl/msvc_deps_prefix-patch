@@ -1,0 +1,25 @@
+rule copy
+  command = cmd /c python "scripts/cp.py" ${in} ${out}
+  description = copy ${in} ${out}
+
+rule install
+  command = gsudo python "scripts/sudo_cp.py" ${in} ${dst} ${out} ${timefile}
+  description = install ${in} to ${dst}
+
+rule rh_get_rc
+  command = ResourceHacker -open ${in}  -save ${out} -action extract "String Table" -mask STRINGTABLE,26,
+  description = get rc from ${in}, save as ${out}
+
+rule modify_rc
+  command = cmd /c python scripts\rc_modify.py  ${in} ${out}
+  description = modify msvc_deps_prefix in ${in}, save to ${out}
+
+rule rh_compile_rc_to_res
+  command = ResourceHacker -open ${in} -save ${out} -action compile
+
+rule rh_gen_rhscript
+  command = scripts\gen_rh_script.bat ${src_dll} ${in} ${dist_dll} ${out} ${rh_log}
+
+rule rh_gen_dll
+  command = scripts\gen_dll.bat ${in} ${out}
+  description = gen dll: ${out}
