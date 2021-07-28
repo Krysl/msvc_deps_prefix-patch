@@ -8,7 +8,7 @@ build out/clui.modified.rc: modify_rc out/clui.rc
 
 build out/clui.res: rh_compile_rc_to_res out/clui.modified.rc
 
-build out/clui.rh: rh_gen_rhscript out/clui.res
+build out/clui.rh out/clui.log: rh_gen_rhscript out/clui.res
   src_dll = out/clui.original.dll
   dist_dll = out/clui.dll
   rh_log = out/clui.log

@@ -60,7 +60,8 @@ def printLangs():
 
 def Main(src, dst):
     # `  408, 	"Note: including file: %s%s\n\x00"`
-    msvc_prefix_regex = re.compile(r"(\s+408,\s+\")(.*)( %s%s\\n\\x00\"\s*\r\n)")
+    msvc_prefix_regex = re.compile(
+        r"(\s+408,\s+\")(.*)( %s%s\\n\\x00\"\s*\r\n)")
     rf = codecs.open(
         src, encoding="utf-16")
     found = False
@@ -90,6 +91,7 @@ def Main(src, dst):
         wf.close()
     else:
         return "Can Not find msvc_deps_prefix in " + src
+
 
 if __name__ == '__main__':
     sys.exit(Main(sys.argv[1], sys.argv[2]))
