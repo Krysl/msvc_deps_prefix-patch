@@ -5,5 +5,9 @@ node_modules/
 yarn.lock
 .ninja_log
 template.json
+config.json
 admin_install
+admin_install.bat
+install.bat
 .vscode/
+.ninja_deps

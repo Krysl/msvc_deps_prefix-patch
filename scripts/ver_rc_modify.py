@@ -19,8 +19,9 @@ def Main(src, dst, path):
             lines.append(line)
             continue
         found = True
+        lines.append(line)
         lines.append('		VALUE "PatchedBy", "https://github.com/Krysl/msvc_deps_prefix-patch"\r\n')
-        lines.append('		VALUE "OriginalPath", "{}"\r\n'.format(path))
+        lines.append('		VALUE "OriginalPath", "{}"\r\n'.format(path.replace('\\', '/')))
     if found is True:
         wf = codecs.open(dst, "w", encoding=rf.encoding)
         wf.write("".join(lines))

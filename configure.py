@@ -1,3 +1,4 @@
+# coding:utf-8
 import sys
 import os
 from copy import copy
@@ -7,16 +8,34 @@ from collections import OrderedDict
 import subprocess
 import codecs
 import json
-from win32api import GetFileVersionInfo
+from win32api import GetFileVersionInfo, LoadResource, LoadLibrary
+import win32con
 
 
 def is_patched(filename):
-    info = GetFileVersionInfo(filename, "\\")
-    patch = info['PatchedBy']
-    if patch:
+    lang, codepage = GetFileVersionInfo(
+        filename, '\\VarFileInfo\\Translation')[0]
+    strInfoPath = '\\StringFileInfo\\%04X%04X\\PatchedBy' % (lang, codepage)
+    info = GetFileVersionInfo(filename, strInfoPath)
+
+    if info:
+        # print(filename + ": " + strInfoPath)
+        # print(info)
         return True
     else:
         return False
+
+
+def get_prefix(filename):
+    m = LoadLibrary(filename)
+    res = LoadResource(m, win32con.RT_STRING, 26)
+    # index = 0
+    # for line in prefix.decode('utf-16').split('\0'):
+    #     print(str(index) + ":" + line + "\r\n")
+    #     index = index + 1
+    prefix = res.decode('utf-16').split('\0')[8]
+    prefix = prefix.replace('\n', '\\n').replace('\0', '\\0')
+    return prefix
 
 
 def check_list(option, opt, value):
@@ -141,8 +160,17 @@ def Main(filepath=None,
                 if len(lang_filter) == 0 or lang in lang_filter:
                     in_lang = True
 
+                patched = is_patched(file)
+                patchflag = None
+                if patched:
+                    patchflag = '[Yes]'
+                else:
+                    patchflag = '[No]'
+                prefix = get_prefix(file)
+
                 if in_hosts and in_target and in_lang:
-                    print("\t" + relpath)
+                    # print("\t{}\t{}\t{}".format(relpath, patchflag, prefix))
+                    print("\t{}\t{}\t".format(relpath, patchflag)+prefix)
                     relpaths.append(relpath)
                 else:
                     if debug is True:
@@ -170,15 +198,20 @@ if __name__ == '__main__':
     parser = OptionParser(option_class=ListOption)
 
     parser.add_option('-f', '--file', type="string",
-                      action='store', dest='file')
+                      action='store', dest='file', 
+                      help='where to save the config file. (default "template.json")')
     parser.add_option('-S', '--showExcludes',
-                      action='store_true', dest='showExcludes')
+                      action='store_true', dest='showExcludes',
+                      help='enable to show the paths that have been filtered by the filtering options. (default not)')
     parser.add_option('-H', '--host', type="strlist",
-                      action='store', dest='host')
+                      action='store', dest='host',
+                      help='host filter, can be x64,x86 . if not set, all host been accepted')
     parser.add_option('-T', '--target', type="strlist",
-                      action='store', dest='target')
+                      action='store', dest='target',
+                      help='target filter, can be x64,x86 . if not set, all target been accepted')
     parser.add_option('-L', '--lang', type="intlist",
-                      action='store', dest='lang')
+                      action='store', dest='lang',
+                      help='Lang ID filter, it\'s a number, see the README.md about "Lang ID" . if not set, all lang been accepted')
     parser.add_option('-d', '--debug',
                       action='store_true', dest='debug')
     (options, args) = parser.parse_args()
