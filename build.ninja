@@ -7,6 +7,7 @@ build out/clui.ver.rc: rh_get_ver_rc out/clui.original.dll
 
 build out/clui.modified.rc: modify_rc out/clui.rc
 build out/clui.modified.ver.rc: modify_ver_rc out/clui.ver.rc
+  original_path = "D:/Program Files/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.29.30037/bin/Hostx64/x64/2052/clui.dll"
 
 build out/clui.res: rh_compile_rc_to_res out/clui.modified.rc
 build out/clui.ver.res: rh_compile_rc_to_res out/clui.modified.ver.rc

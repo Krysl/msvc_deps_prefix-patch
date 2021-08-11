@@ -3,7 +3,7 @@ import codecs
 import re
 
 
-def Main(src, dst):
+def Main(src, dst, path):
     # `		VALUE "OriginalFilename", "CLUI.DLL"`
     OriginalFilename = re.compile(
         r"(.*)\"OriginalFilename\"(.*)")
@@ -20,6 +20,7 @@ def Main(src, dst):
             continue
         found = True
         lines.append('		VALUE "PatchedBy", "https://github.com/Krysl/msvc_deps_prefix-patch"\r\n')
+        lines.append('		VALUE "OriginalPath", "{}"\r\n'.format(path))
     if found is True:
         wf = codecs.open(dst, "w", encoding=rf.encoding)
         wf.write("".join(lines))
@@ -29,4 +30,4 @@ def Main(src, dst):
 
 
 if __name__ == '__main__':
-    sys.exit(Main(sys.argv[1], sys.argv[2]))
+    sys.exit(Main(sys.argv[1], sys.argv[2], sys.argv[3]))
