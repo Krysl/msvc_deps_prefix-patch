@@ -1,8 +1,8 @@
 # msvc_deps_prefix-patch
 
-patch `clui.dll` which is used by `cl.exe` to show the `Note: including file:`  
-All the `Note: including file:` in other languages will be changed to English version.  
-So, `Ninja` won't show tons of `Note: including file: XXXXXXXXXXXX` when build any more.
+Patch `clui.dll` which is used by `cl.exe` to show the `Note: including file:`.  
+
+All the `Note: including file:` in other languages will be changed to English version.  So, `Ninja` won't show tons of `Note: including file: XXXXXXXXXXXX` when build any more.
 
 | Lang ID | Description                          | String template                          | BCP 47 Code |
 | ------- | ------------------------------------ | ---------------------------------------- | ----------- |
@@ -31,6 +31,8 @@ So, `Ninja` won't show tons of `Note: including file: XXXXXXXXXXXX` when build a
 3. Install the needed tools
    - Necessary
      - Assuming you already have
+       - Git
+       - wget
        - python 2.7
        - [Ninja](https://ninja-build.org/)
      - To be download/install in `.\tools` folder
@@ -125,16 +127,27 @@ So, `Ninja` won't show tons of `Note: including file: XXXXXXXXXXXX` when build a
         }
         ```
 
-4. rename `template.json` to `config.json`
+4. rename `template.json` to `config.json`  
   `mv template.json config.json`
 
-5. generate the ninja project
+5. generate the ninja project  
    run `python gen_ninja.py`, and there will be a ninja project in `.\out` folder  
 
-6. build the ninja project to generate patched dll
+6. build the ninja project to generate patched dll  
    `ninja -C out`
-7. install the patched dll
+7. install the patched dll  
    `install.bat`, `admin_install.bat` will be generated
    it's a simple script to copy patched dll to the original place, run one of them to install
    
 
+## TODO
+- simplify usage
+- add the feature of recovering dll
+  - for now, it's backup in out folder
+    - Original dll: out\41f810c1721f6a7ffa9bd0670dcab9e1\clui.original.dll
+    - find original path: out\41f810c1721f6a7ffa9bd0670dcab9e1\clui.modified.ver.rc
+
+Probably no one but me will use this project.
+They can use [Resource Hacker](http://www.angusj.com/resourcehacker) to modify the `clui.dll` manually, even simpler than using this project.  
+This is my first python project with more than 50 lines.  
+Need a lot of refactoring and optimization.
