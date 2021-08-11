@@ -7,6 +7,16 @@ from collections import OrderedDict
 import subprocess
 import codecs
 import json
+from win32api import GetFileVersionInfo
+
+
+def is_patched(filename):
+    info = GetFileVersionInfo(filename, "\\")
+    patch = info['PatchedBy']
+    if patch:
+        return True
+    else:
+        return False
 
 
 def check_list(option, opt, value):
@@ -56,7 +66,8 @@ def Main(filepath=None,
     command_with_args = " ".join([command,
                                  "-products *",
                                   "-requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64",
-                                  "-property installationPath"])
+                                  "-property installationPath",
+                                  "-utf8"])
     outputs = subprocess.check_output(command_with_args).splitlines()
     print(outputs)
 
@@ -76,6 +87,8 @@ def Main(filepath=None,
         exists = os.path.exists(line)
         if exists is False:
             continue
+        if sys.version_info[0] == 3:
+            line = line.decode("utf-8")
         vs_paths.append(line)
     print("Found VS installed in: \r\n\t" + "\r\n\t".join(vs_paths))
 

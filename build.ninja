@@ -3,14 +3,18 @@ ninja_required_version = 1.7.2
 include toolchain.ninja
 
 build out/clui.rc: rh_get_rc out/clui.original.dll
+build out/clui.ver.rc: rh_get_ver_rc out/clui.original.dll
 
 build out/clui.modified.rc: modify_rc out/clui.rc
+build out/clui.modified.ver.rc: modify_ver_rc out/clui.ver.rc
 
 build out/clui.res: rh_compile_rc_to_res out/clui.modified.rc
+build out/clui.ver.res: rh_compile_rc_to_res out/clui.modified.ver.rc
 
-build out/clui.rh out/clui.log: rh_gen_rhscript out/clui.res
+build out/clui.rh out/clui.log: rh_gen_rhscript out/clui.res out/clui.ver.res
   src_dll = out/clui.original.dll
   dist_dll = out/clui.dll
+  langid = 2052
   rh_log = out/clui.log
 
 build out/clui.dll: rh_gen_dll $
