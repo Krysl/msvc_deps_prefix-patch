@@ -42,7 +42,13 @@ def find_files(filename, search_path):
     return result
 
 
-def Main(showExcludes=None, hostfilter=[], targetfilter=[], langfilter=[], debug=False):
+def Main(filepath=None,
+         showExcludes=None,
+         hostfilter=[],
+         targetfilter=[],
+         langfilter=[],
+         remark=None,
+         debug=False):
     command = os.path.join(os.getenv("ProgramFiles(x86)"),
                            "Microsoft Visual Studio\\Installer\\vswhere.exe")
     if os.path.exists(command) is False:
@@ -75,20 +81,23 @@ def Main(showExcludes=None, hostfilter=[], targetfilter=[], langfilter=[], debug
 
     json_obj = OrderedDict()
     vs_paths_switch = OrderedDict()
+    if remark:
+        json_obj["remark"] = remark
     json_obj["switch"] = vs_paths_switch
 
     for vs_path in vs_paths:
         vs_paths_switch[vs_path] = True
+    config_file_path = filepath if filepath is not None else "template.json"
     config_file = codecs.open(
-        "template.json", "w", encoding="utf-8")
-    host_filter = [x.lower() for x in hostfilter] if hostfilter is not None else []
-    target_filter = [x.lower() for x in targetfilter] if targetfilter is not None else []
+        config_file_path, "w", encoding="utf-8")
+    host_filter = [x.lower()
+                   for x in hostfilter] if hostfilter is not None else []
+    target_filter = [x.lower()
+                     for x in targetfilter] if targetfilter is not None else []
     lang_filter = langfilter if langfilter is not None else []
     filters = {"host": host_filter,
                "target": target_filter,
                "lang": lang_filter}
-    print(host_filter, target_filter, lang_filter)
-    print(host_filter, target_filter, lang_filter)
     if showExcludes is not None:
         print("FilterOut Mode is ON:")
         print(json.dumps(filters, indent=4, separators=(',', ': ')))
@@ -97,7 +106,7 @@ def Main(showExcludes=None, hostfilter=[], targetfilter=[], langfilter=[], debug
         relpaths = []
         relpaths_excludes = []
         files = find_files("clui.dll", vs_path)
-        print("  in Path: " + vs_path)
+        print("  find clui in Path: " + vs_path)
         for file in files:
             relpath = os.path.relpath(file, vs_path)
             m = filefilter.match(file)
@@ -129,13 +138,14 @@ def Main(showExcludes=None, hostfilter=[], targetfilter=[], langfilter=[], debug
                     if showExcludes is not None:
                         relpaths_excludes.append(relpath)
             else:
-                print("Not match: " + file)
+                print("Unknow format path: " + file)
         vs_path_cfg["root_path"] = vs_path
         vs_path_cfg["filters"] = filters
         vs_path_cfg["clui_list"] = relpaths
         vs_path_cfg["clui_list_excludes"] = relpaths_excludes
         # print(vs_path_cfg)
         json_obj[vs_path] = vs_path_cfg
+    json_obj["custom_list"] = []
     rc = json.dump(json_obj, config_file,
                    indent=4, separators=(',', ': '))
 
@@ -145,9 +155,11 @@ def Main(showExcludes=None, hostfilter=[], targetfilter=[], langfilter=[], debug
 
 if __name__ == '__main__':
     parser = OptionParser(option_class=ListOption)
+
+    parser.add_option('-f', '--file', type="string",
+                      action='store', dest='file')
     parser.add_option('-S', '--showExcludes',
                       action='store_true', dest='showExcludes')
-
     parser.add_option('-H', '--host', type="strlist",
                       action='store', dest='host')
     parser.add_option('-T', '--target', type="strlist",
@@ -161,5 +173,12 @@ if __name__ == '__main__':
         print('ERROR: extra unparsed command-line arguments:', args)
         sys.exit(1)
     print('options: ' + str(options))
-    sys.exit(Main(showExcludes=options.showExcludes, hostfilter=options.host,
-             targetfilter=options.target, langfilter=options.lang, debug=options.debug))
+    sys.exit(Main(
+        filepath=options.file,
+        showExcludes=options.showExcludes,
+        hostfilter=options.host,
+        targetfilter=options.target,
+        langfilter=options.lang,
+        remark={'cmd': " ".join(sys.argv)},
+        debug=options.debug,
+    ))
